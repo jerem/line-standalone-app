@@ -43,6 +43,7 @@ Comment=Standalone LINE via Chromium (side-loaded extension)
 Exec=$LAUNCHER
 Icon=$ICON_DEST
 Terminal=false
+StartupNotify=true
 Categories=Network;InstantMessaging;
 StartupWMClass=$APPID
 EOF

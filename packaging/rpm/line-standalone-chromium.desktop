@@ -6,5 +6,6 @@ Comment=Standalone LINE via Chromium (side-loaded extension)
 Exec=/usr/bin/line-chromium
 Icon=line-standalone
 Terminal=false
+StartupNotify=true
 Categories=Network;InstantMessaging;
 StartupWMClass=chrome-ophjlpahpchlmihnnnihgmmeilfjmjjc__index.html-Default

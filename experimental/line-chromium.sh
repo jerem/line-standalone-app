@@ -49,10 +49,11 @@ fetch_and_unpack() {
   ver="$("$CHROME_BIN" --version 2>/dev/null | grep -oE '[0-9]+(\.[0-9]+)+' | head -1)"; ver="${ver:-120.0.0.0}"
   url="https://clients2.google.com/service/update2/crx?response=redirect&acceptformat=crx2,crx3&prodversion=${ver}&x=id%3D${EXTID}%26installsource%3Dondemand%26uc"
   echo "Fetching LINE extension (.crx) ..."
-  curl -fsSL -o "$CRX" "$url"; [[ -s "$CRX" ]] || { echo "ERROR: download failed." >&2; exit 1; }
+  curl -fsSL -o "$CRX" "$url" || { echo "ERROR: download failed." >&2; return 1; }
+  [[ -s "$CRX" ]] || { echo "ERROR: download empty." >&2; return 1; }
   echo "Unpacking + injecting developer key ..."
   rm -rf "$EXT_DIR"; mkdir -p "$EXT_DIR"
-  python3 - "$CRX" "$EXT_DIR" "$EXTID" <<'PY'
+  python3 - "$CRX" "$EXT_DIR" "$EXTID" <<'PY' || return 1
 import sys, struct, zipfile, io, hashlib, base64, json, os
 crx, out, target = sys.argv[1], sys.argv[2], sys.argv[3]
 d = open(crx, 'rb').read(); assert d[:4] == b'Cr24', "not a CRX"
@@ -87,7 +88,34 @@ PY
 }
 
 if [[ "${1:-}" == "--refresh" || ! -f "$EXT_DIR/manifest.json" ]]; then
-  fetch_and_unpack
+  # When launched from the app menu there's no terminal, and fetching the ~5 MB
+  # extension takes a moment with no window yet — so give GUI feedback.
+  GUI=0; [[ -t 1 ]] || GUI=1
+  ZPID=""
+  if [[ "$GUI" == 1 ]] && command -v zenity >/dev/null 2>&1; then
+    # pulsating progress dialog in the background; we kill it when done
+    exec 3> >(zenity --progress --pulsate --no-cancel \
+      --title="LINE (Chromium)" \
+      --text="Setting up LINE (first run): downloading the extension…" 2>/dev/null)
+    ZPID=$!
+  elif [[ "$GUI" == 1 ]] && command -v notify-send >/dev/null 2>&1; then
+    notify-send -a "LINE (Chromium)" "Setting up LINE" "First run: downloading the extension…" 2>/dev/null || true
+  fi
+  close_progress() { [[ -n "$ZPID" ]] && { kill "$ZPID" 2>/dev/null || true; exec 3>&- 2>/dev/null || true; ZPID=""; }; }
+
+  if fetch_and_unpack; then
+    close_progress
+  else
+    close_progress
+    if [[ "$GUI" == 1 ]]; then
+      if command -v zenity >/dev/null 2>&1; then
+        zenity --error --title="LINE (Chromium)" --text="Could not download the LINE extension.\nCheck your internet connection and try again." 2>/dev/null || true
+      else
+        notify-send -a "LINE (Chromium)" "Setup failed" "Could not download the LINE extension." 2>/dev/null || true
+      fi
+    fi
+    echo "ERROR: fetch failed." >&2; exit 1
+  fi
 else
   echo "Using cached extension (pass --refresh to re-download)."
 fi
