@@ -8,6 +8,12 @@ entry. It does **not** bundle LINE's extension or logo — the launcher fetches 
 extension from Google on first run and extracts the icon per-user. So the RPM
 itself carries no third-party code.
 
+> **Do not mix the RPM with the git-clone install** (`../../experimental/install-chromium.sh`).
+> Both write the same `app_id` desktop entry, and a user-level entry shadows the
+> system (RPM) one. Pick one. If you previously ran the git installer, remove its
+> entry first with `../../experimental/uninstall-chromium.sh`. Both share the same
+> per-user profile (`~/.local/share/line-chromium`), so your login carries over.
+
 ## Build
 
 ```bash

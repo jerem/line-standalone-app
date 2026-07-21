@@ -63,6 +63,17 @@ start; it's not meant to be invoked manually. The only time you'd touch it again
 Override the browser (if `chromium` isn't the right binary) with
 `CHROME_BIN=/path/to/chromium`, e.g. in the `.desktop` `Exec=` line.
 
+Uninstall with `./uninstall-chromium.sh` (add `--purge` to also delete the
+profile + your login).
+
+> **Do not mix this with the RPM package.** Both this git-clone install and the
+> RPM (`packaging/rpm/`) write the *same* `app_id` desktop entry
+> (`chrome-<extid>__index.html-Default.desktop`), and a user-level entry silently
+> shadows the system (RPM) one. Pick **one** method. To switch, remove the other
+> first (`./uninstall-chromium.sh` here, or `sudo dnf remove
+> line-standalone-chromium` for the RPM). Both share the same per-user profile
+> (`~/.local/share/line-chromium`), so your login carries over either way.
+
 ## Staying logged in
 
 LINE's auth token is the `lct` **session cookie**. A fresh Chromium profile

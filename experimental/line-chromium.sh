@@ -10,9 +10,9 @@
 # profile as a standalone --app window.
 #
 # Because --load-extension re-registers the extension on every launch, opening the
-# app window immediately RACES the extension's service worker (=> ERR_BLOCKED_BY_CLIENT).
-# We avoid that with a two-phase launch: warm up the extension first, wait until its
-# service worker is registered, then open the app window.
+# app window immediately RACES the extension's registration (=> ERR_BLOCKED_BY_CLIENT).
+# We avoid that by driving a reload-until-loaded loop over a localhost-only DevTools
+# port: open the window, then reload it until the LINE app actually renders.
 #
 # Notes:
 #   * isolated profile -> separate LINE login (QR scan); that's expected here
