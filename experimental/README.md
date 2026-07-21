@@ -41,13 +41,27 @@ matching `StartupWMClass`) so the dock shows the LINE icon.
 
 ## Usage
 
+**Install once**, then launch it like any other app.
+
 ```bash
-./install-chromium.sh          # one-time: creates the "LINE (Chromium)" menu entry
-./line-chromium.sh             # or launch directly
-./line-chromium.sh --refresh   # re-download the extension (no auto-update otherwise)
+./install-chromium.sh          # ONE-TIME setup: fetches the extension, extracts the
+                               # icon, and creates the "LINE (Chromium)" menu entry
 ```
 
-Override the browser with `CHROME_BIN=/path/to/chromium ./line-chromium.sh`.
+That's the only script you run by hand. Afterwards, **just launch "LINE
+(Chromium)" from your app menu / dock** (or pin it) — you never call the scripts
+directly again.
+
+`line-chromium.sh` is the launcher that the `.desktop` entry runs for you on every
+start; it's not meant to be invoked manually. The only time you'd touch it again:
+
+```bash
+./line-chromium.sh --refresh   # occasionally: re-download the extension (there is
+                               # no auto-update for the side-loaded copy)
+```
+
+Override the browser (if `chromium` isn't the right binary) with
+`CHROME_BIN=/path/to/chromium`, e.g. in the `.desktop` `Exec=` line.
 
 ## Staying logged in
 
