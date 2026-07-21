@@ -49,13 +49,23 @@ matching `StartupWMClass`) so the dock shows the LINE icon.
 
 Override the browser with `CHROME_BIN=/path/to/chromium ./line-chromium.sh`.
 
+## Staying logged in
+
+LINE's auth token is the `lct` **session cookie**. A fresh Chromium profile
+discards session cookies on exit, so without help you'd re-scan the QR every
+launch. The launcher seeds `session.restore_on_startup=1` (+`profile.exit_type=
+Normal`) into the profile, which makes Chromium persist session cookies across
+restarts. After the first QR login you stay logged in — **provided the window is
+closed cleanly** (a hard power-off with LINE open can lose the not-yet-flushed
+cookie).
+
 ## Trade-offs vs. the installed-extension approach (repo root)
 
 | | Installed (root repo, Chrome) | This (Chromium, fetched) |
 |---|---|---|
 | Manual Web Store install | required | **not needed** |
 | Browser | Google Chrome | Chromium only |
-| Login | shares your Chrome profile | isolated profile → separate QR login |
+| Login | shares your Chrome profile | isolated profile → one-time QR login, then persists (see below) |
 | Push notifications | work | unreliable (side-loaded copy lacks GCM creds) |
 | Auto-update | yes (store) | no — re-run `--refresh` |
 | DevTools port | none | localhost-only ephemeral port stays open for the browser's lifetime |

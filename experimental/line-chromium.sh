@@ -95,6 +95,21 @@ fi
 # provision only (used by install-chromium.sh); don't launch
 [[ "${1:-}" == "--fetch-only" ]] && { echo "Fetch complete."; exit 0; }
 
+# --- keep the LINE session across restarts ---------------------------------
+# LINE's auth token (`lct`) is a SESSION cookie. A fresh Chromium profile drops
+# session cookies on exit, so you'd be asked to log in every launch. Setting
+# "restore last session" makes Chromium persist session cookies. Merge it into
+# the profile's prefs (don't clobber anything Chromium already wrote).
+python3 - "$PROFILE_DIR/Default/Preferences" <<'PY'
+import json, os, sys
+p = sys.argv[1]; os.makedirs(os.path.dirname(p), exist_ok=True)
+try: d = json.load(open(p))
+except Exception: d = {}
+d.setdefault("session", {})["restore_on_startup"] = 1   # 1 = continue where you left off
+d.setdefault("profile", {})["exit_type"] = "Normal"     # avoid the crash-restore bubble
+json.dump(d, open(p, "w"))
+PY
+
 # --- launch the standalone app window --------------------------------------
 # Opening the extension page races the extension's registration, so the window
 # first shows ERR_BLOCKED_BY_CLIENT. We drive a reload-until-loaded loop over a
