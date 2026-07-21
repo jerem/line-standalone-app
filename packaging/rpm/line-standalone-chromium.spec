@@ -16,6 +16,10 @@ Requires:       chromium
 Requires:       python3
 Requires:       curl
 
+# Optional: first-launch progress dialog. The launcher uses zenity if present
+# and degrades gracefully (no feedback) if not, so this is a weak dependency.
+Recommends:     zenity
+
 # The LINE extension itself is NOT bundled: the launcher fetches it at first run.
 # This package ships only the launcher and desktop integration.
 
