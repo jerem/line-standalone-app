@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=LINE (Chromium)
+Comment=Standalone LINE via Chromium (side-loaded extension)
+Exec=/usr/bin/line-chromium
+Icon=line-standalone
+Terminal=false
+Categories=Network;InstantMessaging;
+StartupWMClass=chrome-ophjlpahpchlmihnnnihgmmeilfjmjjc__index.html-Default

@@ -92,7 +92,19 @@ else
   echo "Using cached extension (pass --refresh to re-download)."
 fi
 
-# provision only (used by install-chromium.sh); don't launch
+# ensure the app icon exists as a per-user themed icon named "line-standalone"
+# (extracted from the fetched extension, so LINE's logo need not be shipped in
+# any package). .desktop files reference Icon=line-standalone.
+ICON_THEME_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/icons/hicolor/128x128/apps"
+if [[ ! -f "$ICON_THEME_DIR/line-standalone.png" ]]; then
+  SRC_ICON="$(find "$EXT_DIR" -name 'line_logo_128x128_on.png' 2>/dev/null | head -1)"
+  if [[ -n "$SRC_ICON" ]]; then
+    mkdir -p "$ICON_THEME_DIR"; cp "$SRC_ICON" "$ICON_THEME_DIR/line-standalone.png"
+    gtk-update-icon-cache -f -t "${XDG_DATA_HOME:-$HOME/.local/share}/icons/hicolor" >/dev/null 2>&1 || true
+  fi
+fi
+
+# provision only (used by installers); don't launch
 [[ "${1:-}" == "--fetch-only" ]] && { echo "Fetch complete."; exit 0; }
 
 # --- keep the LINE session across restarts ---------------------------------
